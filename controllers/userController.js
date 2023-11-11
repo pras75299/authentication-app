@@ -36,6 +36,19 @@ class UserController {
       }
     }
   };
+
+  static getUsers = async (req, res) => {
+    try {
+      const users = await UserModel.find({});
+      return res.status(200).json({
+        count: users.length,
+        data: users,
+      });
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).send({ message: error.message });
+    }
+  };
 }
 
 export default UserController;
