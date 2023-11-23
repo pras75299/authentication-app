@@ -14,12 +14,12 @@ class UserController {
       }
       if (name && email && password && password_confirmation && tc) {
         if (password === password_confirmation) {
-          const salt = await bcrypt.genSalt(10);
+          const salt = await bcrypt.genSaltSync(10);
           const hashPassword = await bcrypt.hash(password, salt);
           const data = new UserModel({
             name,
             email,
-            password,
+            password: hashPassword,
             tc,
           });
           await data.save();
@@ -64,8 +64,9 @@ class UserController {
             message: "Email not registered",
           });
         }
-        console.log("User found:", user);
-        if (password === user.password) {
+        const isMatch = await bcrypt.compareSync(password, user.password);
+
+        if (isMatch) {
           res.send({
             status: "success",
             message: "Login Success",
@@ -74,6 +75,7 @@ class UserController {
           res.status(401).send({
             status: "failed",
             message: "Password is not valid",
+            pass: user.password,
           });
         }
       } else {
